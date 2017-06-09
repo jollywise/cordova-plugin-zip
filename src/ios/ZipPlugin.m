@@ -22,6 +22,13 @@
     return path;
 }
 
+- (void)stop:(CDVInvokedUrlCommand*)command
+{
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)unzip:(CDVInvokedUrlCommand*)command
 {
     self->_command = command;

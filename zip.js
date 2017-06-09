@@ -20,8 +20,28 @@ exports.unzip = function(fileName, outputDirectory, callback, progressCallback) 
     };
     var fail = function(result) {
         if (callback) {
-            callback(-1);
+
+            if(result === 'cancelled')
+            {
+                callback(1);
+            }
+            else
+            {
+                callback(-1);
+            }
         }
     };
     exec(win, fail, 'Zip', 'unzip', [fileName, outputDirectory]);
+};
+
+exports.stop = function(callback) {
+    var win = function(result) {
+            callback(0);
+    };
+    var fail = function(result) {
+        if (callback) {
+            callback(result);
+        }
+    };
+    exec(win, fail, 'Zip', 'stop', []);
 };

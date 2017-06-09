@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-
 import android.net.Uri;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -23,6 +22,8 @@ import android.util.Log;
 public class Zip extends CordovaPlugin {
 
     private static final String LOG_TAG = "Zip";
+    private StoppableRunnable currentRunner;
+    private CallbackContext errorCallbackContext;
 
     @Override
     public boolean execute(String action, CordovaArgs args, final CallbackContext callbackContext) throws JSONException {
@@ -30,15 +31,29 @@ public class Zip extends CordovaPlugin {
             unzip(args, callbackContext);
             return true;
         }
+
+        if ("stop".equals(action)) {
+
+            if(currentRunner != null)
+            {
+                errorCallbackContext = callbackContext;
+                currentRunner.stop();
+            }
+
+            return true;
+        }
         return false;
     }
 
     private void unzip(final CordovaArgs args, final CallbackContext callbackContext) {
-        this.cordova.getThreadPool().execute(new Runnable() {
+
+        currentRunner = new StoppableRunnable(){
             public void run() {
                 unzipSync(args, callbackContext);
             }
-        });
+        };
+
+        this.cordova.getThreadPool().execute(currentRunner);
     }
 
     // Can't use DataInputStream because it has the wrong endian-ness.
@@ -116,7 +131,7 @@ public class Zip extends CordovaPlugin {
             byte[] buffer = new byte[32 * 1024];
             boolean anyEntries = false;
 
-            while ((ze = zis.getNextEntry()) != null)
+            while ((ze = zis.getNextEntry()) != null && !currentRunner.stopWork)
             {
                 anyEntries = true;
                 String compressedName = ze.getName();
@@ -143,15 +158,24 @@ public class Zip extends CordovaPlugin {
                 updateProgress(callbackContext, progress);
                 zis.closeEntry();
             }
-
-            // final progress = 100%
-            progress.setLoaded(progress.getTotal());
-            updateProgress(callbackContext, progress);
-
-            if (anyEntries)
-                callbackContext.success();
+            
+            if(currentRunner.stopWork)
+            {
+                callbackContext.error("cancelled");
+                errorCallbackContext.success();
+            }
             else
-                callbackContext.error("Bad zip file");
+            {
+                // final progress = 100%
+                progress.setLoaded(progress.getTotal());
+                updateProgress(callbackContext, progress);
+                
+                if (anyEntries)
+                    callbackContext.success();
+                else
+                    callbackContext.error("Bad zip file");
+            }
+            
         } catch (Exception e) {
             String errorMessage = "An error occurred while unzipping.";
             callbackContext.error(errorMessage);

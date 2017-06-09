@@ -16,6 +16,8 @@
   </js-module>
 
   <platform name="android">
+      
+    <source-file src="src/android/StoppableRunnable.java" target-dir="src/org/apache/cordova" />
     <source-file src="src/android/Zip.java" target-dir="src/org/apache/cordova" />
 
     <config-file target="res/xml/config.xml" parent="/widget">
