@@ -27,6 +27,16 @@ has been extracted. E.g.:
 The values `loaded` and `total` are the number of compressed bytes processed and total. Total is the
 file size of the zip file.
 
+## Zip traversal error
+* [JW Ticket](https://jollywise.atlassian.net/browse/GAMEBOX-101)
+* [Google Support](https://support.google.com/faqs/answer/9294009)
+* [Goodboy Info cordova-plugin-zip](https://geekrepos.com/GoodBoyDigital/cordova-plugin-zip)
+* [Goodboy Repo  cordova-plugin-zip](https://github.com/GoodBoyDigital/cordova-plugin-zip)
+* [Issue](https://github.com/MobileChromeApps/cordova-plugin-zip/issues/91)
+* [Patch Pull Request](https://github.com/MobileChromeApps/cordova-plugin-zip/pull/92)
+* [Forked repo used for patch](https://github.com/bikubi/cordova-plugin-zip)
+
+
 ## Release Notes
 
 ### 3.1.0 (Feb 23, 2016)
